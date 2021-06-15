@@ -1,0 +1,41 @@
+# https://github.com/pre-commit/pre-commit-hooks/blob/master/.pre-commit-config.yaml
+# https://rednafi.github.io/digressions/python/2020/04/06/python-precommit.html
+# manually run : pipenv run pre-commit run --all-files
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+        alias: Trim
+-   repo: https://github.com/psf/black
+    rev: 21.6b0
+    hooks:
+    -   id: black
+        entry: black .
+        verbose: True
+        name: black - code formatter
+-   repo: https://github.com/pycqa/isort
+    rev: 5.8.0
+    hooks:
+    -   id: isort
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v2.19.4
+    hooks:
+    -   id: pyupgrade
+        args: [--py36-plus]
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+    -   id: flake8
+        args:
+            - "--max-line-length=100"
+            - "--ignore=E203,E266,E501,W503,F403,F401,E402"
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.800
+    hooks:
+    -   id: mypy
+        name: mypy
+        entry: mypy
+        args: ["--ignore-missing-imports", "--scripts-are-modules"]

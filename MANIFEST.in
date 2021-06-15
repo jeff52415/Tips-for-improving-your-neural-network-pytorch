@@ -1,0 +1,10 @@
+include *.yaml
+include *.md
+include *.pickle
+include *.txt
+
+exclude *.log
+
+recursive-exclude * __pycache__
+recursive-exclude * .DS_Store
+recursive-exclude * *.py[co]
