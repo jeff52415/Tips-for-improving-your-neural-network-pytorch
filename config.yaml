@@ -1,0 +1,11 @@
+device: "cuda"
+model_name: "efficientnet_lite2"
+label_smooth: 0 ## if 0, not activated
+bias_decay: false
+epochs: 100
+warmup: false
+mixup: false
+distillation: false
+stochastic_depth: true
+group_normalization: false
+weight_standardization: false
