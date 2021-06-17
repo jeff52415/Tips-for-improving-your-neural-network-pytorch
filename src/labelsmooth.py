@@ -23,7 +23,7 @@ class LabelSmoothing(nn.Module):
         self.confidence = 1 - smoothing
 
     @torch.no_grad()
-    def convert_label_to_smooth(self, true_labels: Union[np.ndarray, torch.Tensor]):
+    def convert_label_to_smooth(self, true_labels: torch.Tensor):
         label_shape = torch.Size((true_labels.size(0), self.classes))
         true_dist = torch.empty(size=label_shape, device=true_labels.device)
         true_dist.fill_(self.smoothing / (self.classes - 1))

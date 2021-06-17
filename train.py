@@ -21,6 +21,9 @@ from src.warmup import ExponentialWarmup
 
 warnings.filterwarnings("ignore")
 
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+
 store_folder = f"cifar10_{config.model_name}{'_bias_decay' if config.bias_decay else ''}{'_warmup' if config.warmup else ''}{'_mixup' if config.mixup else ''}{'_label_smooth' if config.label_smooth else ''}{'_distillation' if config.distillation else ''}"
 os.makedirs(store_folder, exist_ok=True)
 
@@ -41,7 +44,7 @@ logger.info("Activate Model")
 
 if config.bias_decay:
     params = add_weight_decay(model, 2e-5)
-    optimizer = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999))
+    optimizer = optim.Adam(params, lr=0.001, betas=(0.9, 0.999))
 else:
     optimizer = optim.Adam(
         model.parameters(), lr=0.001, betas=(0.9, 0.999), weight_decay=2e-5
@@ -50,9 +53,7 @@ else:
 
 num_steps = len(trainloader) * config.epochs * 2
 
-lr_scheduler = optim.lr_scheduler.CosineAnnealingLR(
-    optimizer, T_max=num_steps
-)  # T_max step 之後會重新
+lr_scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_steps)
 if config.warmup:
     warmup_scheduler = ExponentialWarmup(optimizer, warmup_period=num_steps // 10)
     logger.info(r"Activated warmup")
@@ -85,6 +86,8 @@ criterion = LabelSmoothing(classes=10, smoothing=config.label_smooth)
 
 frequency = len(trainloader) // 3
 writer = SummaryWriter(log_dir=store_folder)
+trigger_mixup = config.epochs // 5
+stop_mixup = (config.epochs // 5) * 4
 for _ in range(config.epochs):
     loader = iter(trainloader)
     loss_ = []
@@ -102,7 +105,7 @@ for _ in range(config.epochs):
         mini_batch_images, mini_batch_labels = mini_batch_images.to(
             config.device
         ), mini_batch_labels.to(config.device)
-        if config.mixup:
+        if config.mixup and trigger_mixup <= _ <= stop_mixup:
             loss = mixup_trainer(model, mini_batch_images, mini_batch_labels)
         else:
             output = model(mini_batch_images)
