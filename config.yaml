@@ -1,7 +1,7 @@
 device: "cuda"
 model_name: "efficientnet_lite2"
 label_smooth: 0 ## if 0, deactivated
-bias_decay: false
+no_bias_decay: false
 epochs: 300
 warmup: false
 mixup: false

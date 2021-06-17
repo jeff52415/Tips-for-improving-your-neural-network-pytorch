@@ -5,7 +5,7 @@ def add_weight_decay(net, l2_value, skip_list=[]):
         if not param.requires_grad:
             continue  # skip frozen weights
         # skip bias and bn layer
-        if name.endswith(".bias") or "_bn" in name:
+        if name.endswith(".bias") or ("_bn" in name) or (name in skip_list):
             no_decay.append(param)
         else:
             decay.append(param)

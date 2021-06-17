@@ -1,7 +1,7 @@
 import torch
 from torchvision import models
 
-from src.bias_decay import add_weight_decay
+from src.no_bias_decay import add_weight_decay
 
 
 def test_decay():

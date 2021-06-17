@@ -10,12 +10,12 @@ from loguru import logger
 from torch import optim
 from torch.utils.tensorboard import SummaryWriter
 
-from src.bias_decay import add_weight_decay
 from src.config import config
 from src.distillation import DistillationLoss
 from src.efficientnet_lite import build_efficientnet_lite
 from src.labelsmooth import LabelSmoothing
 from src.mixup import Mixup
+from src.no_bias_decay import add_weight_decay
 from src.utils import accuracy_score, build_loader
 from src.warmup import ExponentialWarmup
 
@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore")
 # os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
-store_folder = f"cifar10_{config.model_name}{'_bias_decay' if config.bias_decay else ''}{'_warmup' if config.warmup else ''}{'_mixup' if config.mixup else ''}{'_label_smooth' if config.label_smooth else ''}{'_distillation' if config.distillation else ''}"
+store_folder = f"cifar10_{config.model_name}{'_no_bias_decay' if config.no_bias_decay else ''}{'_warmup' if config.warmup else ''}{'_mixup' if config.mixup else ''}{'_label_smooth' if config.label_smooth else ''}{'_distillation' if config.distillation else ''}"
 os.makedirs(store_folder, exist_ok=True)
 
 
@@ -42,7 +42,7 @@ model.train()
 logger.info("Activate Model")
 
 
-if config.bias_decay:
+if config.no_bias_decay:
     params = add_weight_decay(model, 2e-5)
     optimizer = optim.Adam(params, lr=0.001, betas=(0.9, 0.999))
 else:

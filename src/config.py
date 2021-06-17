@@ -16,7 +16,7 @@ class ModelConfig(BaseModel):
     model_name: str
     device: str
     label_smooth: Union[float, int]
-    bias_decay: bool
+    no_bias_decay: bool
     epochs: int
     warmup: bool
     mixup: bool
