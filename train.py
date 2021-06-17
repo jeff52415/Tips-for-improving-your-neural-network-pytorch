@@ -21,8 +21,8 @@ from src.warmup import ExponentialWarmup
 
 warnings.filterwarnings("ignore")
 
-os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+# os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 store_folder = f"cifar10_{config.model_name}{'_bias_decay' if config.bias_decay else ''}{'_warmup' if config.warmup else ''}{'_mixup' if config.mixup else ''}{'_label_smooth' if config.label_smooth else ''}{'_distillation' if config.distillation else ''}"
 os.makedirs(store_folder, exist_ok=True)
