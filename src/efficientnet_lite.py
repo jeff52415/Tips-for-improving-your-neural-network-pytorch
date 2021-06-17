@@ -204,12 +204,12 @@ class MBConvBlock(nn.Module):
         # Expansion and Depthwise Convolution
         continue_forward = True
         if (self.drop_p is not None) and self.training:
-            drop = torch.bernoulli(self.drop_p)
-            if drop:
+            run = torch.bernoulli(self.drop_p)
+            if run:
+                continue_forward = True
+            else:
                 continue_forward = False
                 x = self.identity(x)
-            else:
-                continue_forward = True
 
         if continue_forward:
             identity = self.identity(x)
