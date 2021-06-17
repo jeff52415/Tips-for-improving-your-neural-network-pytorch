@@ -1,10 +1,7 @@
 # Tips-for-improving-your-neural-network-pytorch
 
 
-A PyTorch implementation for bag of useful tricks
---------------
-</div>
-
+**A PyTorch implementation for bag of useful tricks**
 
 
 - Stochastic Depth [arXiv](https://arxiv.org/abs/1603.09382)
