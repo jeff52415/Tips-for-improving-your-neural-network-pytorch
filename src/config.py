@@ -20,6 +20,8 @@ class ModelConfig(BaseModel):
     epochs: int
     warmup: bool
     mixup: bool
+    lr: float
+    num_classes: int
     distillation: bool
     stochastic_depth: bool
     group_normalization: bool

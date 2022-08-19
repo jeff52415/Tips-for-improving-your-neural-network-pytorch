@@ -1,8 +1,10 @@
-device: "cuda"
-model_name: "efficientnet_lite2"
+device: "cuda:0"
+model_name: "mobilevitv2"
 label_smooth: 0 ## if 0, deactivated
 no_bias_decay: false
 epochs: 300
+num_classes: 10
+lr: 0.0001
 warmup: false
 mixup: false
 distillation: false

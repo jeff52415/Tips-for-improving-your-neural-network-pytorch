@@ -13,12 +13,14 @@ from torch.utils.tensorboard import SummaryWriter
 from src.config import config
 from src.distillation import DistillationLoss
 from src.efficientnet_lite import build_efficientnet_lite
+from src.ghost import ghost_net
+from src.edgevit import EdgeViT_XXS, EdgeViT_XS, EdgeViT_S
 from src.labelsmooth import LabelSmoothing
 from src.mixup import Mixup
 from src.no_bias_decay import add_weight_decay
 from src.utils import accuracy_score, build_loader
 from src.warmup import ExponentialWarmup
-
+from timm.models import mobilenetv2_050, mobilenetv2_120d, mobilevitv2_100, mobilevitv2_150_384_in22ft1k, mobilevitv2_150, mobilevitv2_150_in22ft1k, efficientnet_lite3, ghostnet_130, fbnetv3_d
 warnings.filterwarnings("ignore")
 
 # os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -30,24 +32,48 @@ os.makedirs(store_folder, exist_ok=True)
 
 trainloader, testloader = build_loader()
 
-model = build_efficientnet_lite(
-    config.model_name,
-    num_classes=10,
-    group_normalization=config.group_normalization,
-    weight_standardization=config.weight_standardization,
-    stochastic_depth=config.stochastic_depth,
-)
+if "efficient" in config.model_name:
+    """
+    model = build_efficientnet_lite(
+        config.model_name,
+        num_classes=config.num_classes,
+        group_normalization=config.group_normalization,
+        weight_standardization=config.weight_standardization,
+        stochastic_depth=config.stochastic_depth,
+    )
+    """
+    model = efficientnet_lite3(True, num_classes=config.num_classes)
+    logger.info(f"activate efficient_net")
+    
+elif "ghost" in config.model_name:
+    model = ghostnet_130(True, num_classes=config.num_classes)
+    logger.info(f"activate ghost_net")
+elif "edge" in config.model_name or "EdgeViT" in config.model_name:
+    model = EdgeViT_S(num_classes=config.num_classes)
+    logger.info(f"activate edge_vit")
+    
+elif "mobilenetv2" in config.model_name:
+    model = mobilenetv2_120d(True, num_classes=config.num_classes)
+    logger.info(f"activate mobilenetv2")
+elif "mobilevitv2" in config.model_name:
+    model = mobilevitv2_150_in22ft1k(True, num_classes=config.num_classes)
+    logger.info(f"activate mobilevitv2")
+elif "fbnet" in config.model_name:
+    model = fbnetv3_d(True, num_classes=config.num_classes)
+    logger.info(f"activate fbnet") 
+else:
+    raise NotImplementedError
+
 model.to(config.device)
 model.train()
-logger.info("Activate Model")
 
 
 if config.no_bias_decay:
     params = add_weight_decay(model, 2e-5)
-    optimizer = optim.Adam(params, lr=0.001, betas=(0.9, 0.999))
+    optimizer = optim.AdamW(params, lr=config.lr, betas=(0.9, 0.999))
 else:
-    optimizer = optim.Adam(
-        model.parameters(), lr=0.001, betas=(0.9, 0.999), weight_decay=2e-5
+    optimizer = optim.AdamW(
+        model.parameters(), lr=config.lr, betas=(0.9, 0.999), weight_decay=2e-5
     )
 
 
@@ -81,7 +107,7 @@ if config.distillation:
 else:
     model_teacher = lambda N: None
 
-criterion = LabelSmoothing(classes=10, smoothing=config.label_smooth)
+criterion = LabelSmoothing(classes=config.num_classes, smoothing=config.label_smooth)
 
 
 frequency = len(trainloader) // 3
